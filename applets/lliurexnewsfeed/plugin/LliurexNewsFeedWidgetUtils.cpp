@@ -1,4 +1,5 @@
 #include "LliurexNewsFeedWidgetUtils.h"
+#include "LliurexNewsFeedWidgetRssModel.h"
 
 #include <QFile>
 #include <QDebug>
@@ -9,6 +10,8 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QXmlStreamReader>
+#include <QDate>
+#include <QVector>
 
 #include <tuple>
 #include <sys/types.h>
@@ -25,12 +28,9 @@ LliurexNewsFeedWidgetUtils::LliurexNewsFeedWidgetUtils(QObject *parent)
 
 void LliurexNewsFeedWidgetUtils::createEnvirontment(){
 
-    qDebug()<<"CREANDO ENTORNO";
     QString newsFeedPath="/home/"+user+"/.config/lliurex-news-feed";
-    qDebug()<<newsFeedPath;
     QDir newsFeedDir;
     if (!newsFeedDir.exists(newsFeedPath)){
-        qDebug()<<"CREANDO CARPETA";
         newsFeedDir.mkdir(newsFeedPath);
     }
 
@@ -95,31 +95,28 @@ QString LliurexNewsFeedWidgetUtils::getInstalledVersion(){
 
 }  
 
-QString LliurexNewsFeedWidgetUtils::getLastBlogUpdate(){
+QString LliurexNewsFeedWidgetUtils::getLastRssUpdate(QString rssPath){
 
-    qDebug()<<"[LLIUREX-NEWS-FEED]: Check for last blog update";
-
-    QFile lastBlogUpdateFile("/home/"+user+lastBlogUpdate);
-    QString lastBlogUpdate="2025-01-01";
-    if (lastBlogUpdateFile.exists()){
-        if (lastBlogUpdateFile.open(QIODevice::ReadOnly)){
-            QTextStream content(&lastBlogUpdateFile);
+    QString lastRssUpdate;
+    
+    QFile lastRssUpdateFile("/home/"+user+rssPath);
+    if (lastRssUpdateFile.exists()){
+        if (lastRssUpdateFile.open(QIODevice::ReadOnly)){
+            QTextStream content(&lastRssUpdateFile);
             while (!content.atEnd()){
                 QString tmpLine=content.readLine().remove('\n');
                 if (!tmpLine.isEmpty()){
-                    lastBlogUpdate=tmpLine;
+                    lastRssUpdate=tmpLine;
                 }
             }
-            
-            lastBlogUpdateFile.close();
+            lastRssUpdateFile.close();
         }
     }
-    return lastBlogUpdate;
-
+    return lastRssUpdate;
 }
 
 void LliurexNewsFeedWidgetUtils::fetchRss(const QUrl &url) {
-    qDebug()<<"[LLIUREX-NEWS-FEED]:Downloading RSS"<<url;
+    
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
     QNetworkRequest request(url);
     request.setAttribute(QNetworkRequest::FollowRedirectsAttribute,true);
@@ -129,36 +126,101 @@ void LliurexNewsFeedWidgetUtils::fetchRss(const QUrl &url) {
 
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         QVariantList result;
+        QVector <LliurexNewsFeedWidgetRssItem> rssModel;
+        QString newUpdateRssDate;
         if (reply->error() == QNetworkReply::NoError) {
             qDebug()<<"[LLIUREX-NEWS-FEED]: status"<<reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-            QVariantList result = parseRss(reply);
-            emit rssProcessed(result);
+            result = parseRss(reply);
+            if (result.count()>0){
+                qDebug()<<"[LLIUREX-NEWS-FEED]: get "<<result.count()<<" entries from rss";
+                QVariantMap lastItem=result.first().toMap();
+                QString newUpdateRssDate=lastItem["pubDate"].toString();
+                rssModel=setDataForModel(result);
+                emit rssProcessed(rssModel,newUpdateRssDate);
+
+            }else{
+                emit rssProcessed(rssModel,newUpdateRssDate);
+            }
         }else{
-            std::clog<<"[LLIUREX-NEWS-FEED]: Elements of list to return "<<result.count()<<std::endl;
-            emit rssProcessed(result);
+            emit rssProcessed(rssModel,newUpdateRssDate);
         }
         reply->deleteLater();
     });
 }
 
 QVariantList LliurexNewsFeedWidgetUtils::parseRss(QIODevice *device) {
+    
     QVariantList rssItems;
     QXmlStreamReader reader(device); 
 
-    qDebug()<<"[LLIUREX-NEWS-FEED]: Parsing rss";
     while (!reader.atEnd() && !reader.hasError()) {
         if (reader.readNextStartElement() && reader.name() == "item") {
-            QVariantMap itemData;
-            while (reader.readNextStartElement()) {
-                if ((reader.name()=="title") || (reader.name()=="link") || (reader.name()=="pubDate")) {
-                    itemData.insert(reader.name().toString(), reader.readElementText());
-                }else{
-                    reader.skipCurrentElement();
+                QVariantMap itemData;
+                while (reader.readNextStartElement()) {
+                    if ((reader.name()=="title") || (reader.name()=="link") || (reader.name()=="pubDate")) {
+                        itemData.insert(reader.name().toString(), reader.readElementText());
+                    }else{
+                        reader.skipCurrentElement();
+                    }
                 }
-            }
-            rssItems.append(itemData);
+                rssItems.append(itemData);
         }
     }
-    std::clog<<"[LLIUREX-NEWS-FEED]: Elements of list "<<rssItems.count()<<std::endl;
     return rssItems;
+   
 }
+
+QVector <LliurexNewsFeedWidgetRssItem> LliurexNewsFeedWidgetUtils::setDataForModel(QVariantList rssItems)
+{
+    QVector<LliurexNewsFeedWidgetRssItem> items;
+    if (rssItems.count()>0){
+        for (const QVariant &v: rssItems){
+            QVariantMap rssEntry=v.toMap();
+            LliurexNewsFeedWidgetRssItem item;
+            QString parsedDate=parseDate(rssEntry["pubDate"].toString(),false);
+            item.setTitle(parsedDate+" - "+rssEntry["title"].toString());
+            item.setLink(rssEntry["link"].toString());
+            item.setPubDate(rssEntry["pubDate"].toString());
+            items.append(item);
+        }
+    }
+
+    return items;
+}
+
+QString LliurexNewsFeedWidgetUtils::parseDate(QString dateToParse,bool isoFormat)
+{
+    QString parsedDate;
+    QDateTime tmpDateTime=QDateTime::fromString(dateToParse,Qt::RFC2822Date);
+    if (tmpDateTime.isValid()){
+        QDate tmpDate=tmpDateTime.date();
+        if (isoFormat){
+            parsedDate=tmpDate.toString("yyyy-MM-dd");
+        }else{
+            parsedDate=tmpDate.toString("dd/MM/yyyy");
+        }
+    }else{
+        parsedDate=dateToParse;
+    }
+
+    return parsedDate; 
+}
+
+void LliurexNewsFeedWidgetUtils::updateLastRssPath(QString rssPath, QString newDate)
+{
+
+    QFile lastRssUpdateFile("/home/"+user+rssPath);
+    QString newsFeedPath="/home/"+user+"/.config/lliurex-news-feed";
+    QDir newsFeedDir;
+    if (!newsFeedDir.exists(newsFeedPath)){
+        newsFeedDir.mkdir(newsFeedPath);
+    }else{
+        if (lastRssUpdateFile.open(QIODevice::WriteOnly)){
+            QTextStream data(&lastRssUpdateFile);
+                data<<newDate;
+                lastRssUpdateFile.close();
+        }
+    }
+}
+
+

@@ -1,11 +1,11 @@
 [Global]
 IconName=lliurex-news-feed
 Comment=LliureX-News-Feed
-Comment[ca@valencia]=LliureX-Auto-Upgrade
-Comment[ca]=LliureX-Auto-Upgrade
-Comment[es]=LliureX-Auto-Upgrade
+Comment[ca@valencia]=LliureX-News-Feed
+Comment[ca]=LliureX-News-Feed
+Comment[es]=LliureX-News-Feed
 
-[Event/BlogNews]
+[Event/Blog]
 Name=There's news on the LliureX blog
 Name[ca@valencia]=Hi ha novetats en el blog de LliureX
 Name[ca]=Hi ha novetats en el blog de LliureX

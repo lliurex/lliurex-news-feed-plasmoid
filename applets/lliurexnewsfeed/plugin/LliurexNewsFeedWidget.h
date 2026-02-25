@@ -4,8 +4,10 @@
 #include <QObject>
 #include <QPointer>
 #include <KNotification>
+#include <QVector>
 
 #include "LliurexNewsFeedWidgetUtils.h"
+#include "LliurexNewsFeedWidgetRssModel.h"
 
 class QTimer;
 class KNotification;
@@ -23,6 +25,7 @@ class LliurexNewsFeedWidget : public QObject
     Q_PROPERTY(QString iconName READ iconName NOTIFY iconNameChanged)
     Q_PROPERTY(int currentStackIndex READ currentStackIndex NOTIFY currentStackIndexChanged)
     Q_PROPERTY(QString lastBlogUpdate READ lastBlogUpdate NOTIFY lastBlogUpdateChanged)
+    Q_PROPERTY(bool canFilterRssBlog READ canFilterRssBlog NOTIFY canFilterRssBlogChanged)
     Q_PROPERTY(LliurexNewsFeedWidgetRssModel* rssBlogModel READ rssBlogModel CONSTANT)
 
     Q_ENUMS(TrayStatus)
@@ -58,6 +61,9 @@ public:
     QString lastBlogUpdate();
     void setLastBlogUpdate(const QString &lastBlogUpdate);
 
+    bool canFilterRssBlog();
+    void setCanFilterRssBlog(bool);
+
     LliurexNewsFeedWidgetRssModel *rssBlogModel() const;
 
 public slots:
@@ -72,30 +78,36 @@ signals:
     void statusChanged();
     void currentStackIndexChanged();
     void lastBlogUpdateChanged();
+    void canFilterRssBlogChanged();
 
 private:
 
     TrayStatus m_status = PassiveStatus;
+    QString defaultFilterDate="2099-12-31";
     QString m_iconName = QStringLiteral("lliurex-news-feed");
     QString m_toolTip;
     QString m_subToolTip;
     int m_currentStackIndex=0;
     QString m_lastBlogUpdate;
+    bool m_canFilterRssBlog=false;
     QString notificationTitle;
     QString notificationBody;
     QString notificationHead;
     QString notificationFoot;
+    QString lastBlogUpdatePath="/.config/lliurex-news-feed/lastBlogUpdate";
     LliurexNewsFeedWidgetUtils *m_utils;
     QPointer<KNotification> m_notification;
+    void initPlasmoid();
     void plasmoidMode();
     void disableApplet();
     void closeAllNotifications();
     void sendNotification();
+    void updateLastBlogUpdate(const QString &lastUpdate);
     LliurexNewsFeedWidgetRssModel *m_rssBlogModel = nullptr;
 
 private slots:
     
-    void processRssModel(QVariantList rssEntries);
+    void processRssModel(QVector <LliurexNewsFeedWidgetRssItem> rssEntries,QString newUpdateRssDate);
 };
 
 

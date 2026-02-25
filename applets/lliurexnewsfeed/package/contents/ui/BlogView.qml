@@ -7,43 +7,19 @@ import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.components 2.0 as Components
 import org.kde.plasma.components 3.0 as PC3
 import QtQuick.XmlListModel 2.15
+import org.kde.kirigami 2.12 as Kirigami
 import org.kde.plasma.private.lliurexnewsfeed 1.0
 
 Rectangle{
-	color:"transparent"
-    /*
-    XmlListModel {
-        id: rssBlogModel
-        source: "https://portal.edu.gva.es/blogs/s1/lliurex/feed" // URL del fil
-        query: "/rss/channel/item" // Ruta XML als elements de la llista
+    id:container
+    color:"transparent"
 
-        XmlRole { name: "title"; query: "title/string()" }
-        XmlRole { name: "link"; query: "link/string()" }
-        XmlRole { name: "pubDate";query: "pubDate/string()"}
-        onStatusChanged:{
-            if (status==XmlListModel.Loading){
-                console.log("Cargando")
-            }else if (status==XmlListModel.Ready){
-                console.log("LISTO")
-                console.log(Qt.locale().name)
-                if (rssBlogModel.count>0){
-                    var lastItemDate=get(0).pubDate
-                    var lastUpdateDate=new Date(lastItemDate)
-                    console.log(lastUpdateDate.toLocaleDateString(Qt.locale(),"yyyy-MM-dd"))
-                    
-                 }
-            }else if (status==XmlListModel.Error){
-                console.log("ERROR")
-            }
-        }
-    }
-    */
     DelegateModel{
         id:filterModel
         model:lliurexNewsFeedWidget.rssBlogModel
         delegate: Item {
             id:rssBlogItem
-            width:parent.width-18
+            width:rssBlogList.width-18
             height:60
             MouseArea{
                 id:itemArea
@@ -52,19 +28,42 @@ Rectangle{
                 propagateComposedEvents:false
                 onEntered:rssBlogList.currentIndex=index
             }
+            property var refDate:new Date(lliurexNewsFeedWidget.lastBlogUpdate);
             property var rssDate:new Date(model.pubDate)
             Text{
                 id:rssBlogEntry
-                text: {
-                    var itemDate=rssDate.toLocaleDateString(Qt.locale(),"dd/MM/yyyy")
-                
-                    return itemDate+" - "+model.title
-                }
-                width: parent.width-(linkBtn.width+45)
+                text: model.title
+                width: parent.width-(linkBtn.width+newRss.width+50)
                 anchors.verticalCenter:parent.verticalCenter
                 wrapMode: Text.WordWrap
                 padding: 10
             }
+
+            Image{
+                id:newRss
+                source:"/usr/share/icons/hicolor/scalable/apps/lliurex-rss-new-post.svg"
+                sourceSize.width:24
+                sourceSize.height:24
+                anchors.left:rssBlogEntry.right
+                anchors.verticalCenter:parent.verticalCenter
+                anchors.leftMargin:15
+                visible:{
+                    if (lliurexNewsFeedWidget.canFilterRssBlog){
+                        if (!filterSwitchButton.checked){
+                            if (rssDate.getTime()>refDate.getTime()){
+                                true
+                            }else{
+                                false
+                            }
+                        }else{
+                            false
+                        }
+                    }else{
+                        false
+                    }
+                }
+            }
+
 
             PC3.ToolButton{
                 id:linkBtn
@@ -72,10 +71,14 @@ Rectangle{
                 height:35
                 display:AbstractButton.IconOnly
                 icon.name:"folder-html.svg"
-                anchors.leftMargin:20
-                anchors.left:rssBlogEntry.right
+                anchors.leftMargin:15
+                anchors.left:newRss.right
                 anchors.verticalCenter:parent.verticalCenter
                 visible:rssBlogItem.ListView.isCurrentItem?true:false
+                PC3.ToolTip{
+                    id:linkTT
+                    text:i18n("Click to see the post")
+                }
                 PC3.ToolTip.text:i18n("Click to see the article")
                 onClicked:{
                     Qt.openUrlExternally(model.link)
@@ -94,22 +97,28 @@ Rectangle{
 
         function updateFilter(){
 
-            let refDate=new Date("2025-01-01");
+            let refDate=new Date(lliurexNewsFeedWidget.lastBlogUpdate);
             for (var i=0; i<items.count;i++){
-                let item=items.get(i).model;
-                let itemDate=new Date(item.pubDate);
-                if (itemDate.getTime()>refDate.getTime()){
-                    items.get(i).inVisible=true
+                if (filterSwitchButton.checked){
+                    let item=items.get(i).model;
+                    let itemDate=new Date(item.pubDate);
+                    if (itemDate.getTime()>refDate.getTime()){
+                        items.get(i).inVisible=true
+                    }else{
+                        items.get(i).inVisible=false
+                    }
                 }else{
-                    items.get(i).inVisible=true
+                   items.get(i).inVisible=true
                 }
+
             }
         }
     }
-  
-	GridLayout{
+
+    GridLayout{
         id:blogLayout
         rows: 2
+        focus:true
         flow: GridLayout.TopToBottom
         rowSpacing:10
         width:parent.width
@@ -118,14 +127,41 @@ Rectangle{
             Layout.fillWidth:true
             Components.Label{
                 id:headBlogText
-                text:i18n("News on the LliureX blog")
+                text:i18n("LliureX blog")
                 font.italic:true
                 font.pointSize:11
                 Layout.fillWidth:true
                 Layout.leftMargin:15
                 Layout.alignment:Qt.AlignHCenter
             }
-            
+            Components.Label{
+                id:switchText
+                text:i18n("Show only news post:")
+                font.pointSize:10
+                width:headLatestBlog.width-(headBlogText.width+filterSwitchButton.width)
+                Layout.rightMargin:10
+                Layout.alignment:Qt.AlignRight
+            }
+
+            PC3.Switch {
+                id: filterSwitchButton
+                checked:true
+                focus:true
+                Layout.alignment:Qt.AlignRight
+                Layout.rightMargin:30
+                PC3.ToolTip{
+                    id:filterTT
+                    text:{
+                        if (checke){
+                            i18n("Clic to show other previous posts")
+                        }else{
+                            i18n("Clic to show only new posts")
+                        }
+                    }
+                }
+                onToggled:filterModel.updateFilter();
+
+            }
         }
 
         PC3.ScrollView {
@@ -147,8 +183,22 @@ Rectangle{
                 Component.onCompleted:{
                     filterModel.updateFilter();
                 }
+                Kirigami.PlaceholderMessage{
+                    id:emptyHint
+                    anchors.centerIn:parent
+                    width:parent.width-(units.largeSpacing*4)
+                    visible:{
+                        if (rssBlogList.count>0){
+                            return false
+                        }else{
+                            return true
+                        }
+                    }
+                    text:i18n("The are no new posts on the LliureX blog")
+                }
             }
         }
+
      }
 
 }
