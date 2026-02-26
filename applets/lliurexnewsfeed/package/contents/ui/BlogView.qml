@@ -20,7 +20,7 @@ Rectangle{
         delegate: Item {
             id:rssBlogItem
             width:rssBlogList.width-18
-            height:60
+            height:Math.max(rssBlogEntry.height, Math.round(PlasmaCore.Units.gridUnit * 1.6)) + 2 * PlasmaCore.Units.smallSpacing
             MouseArea{
                 id:itemArea
                 anchors.fill:parent
@@ -29,8 +29,9 @@ Rectangle{
                 onEntered:rssBlogList.currentIndex=index
             }
   
-            Text{
+            PC3.Label{
                 id:rssBlogEntry
+                maximumLineCount: 3
                 text: model.title
                 width: parent.width-(linkBtn.width+newRss.width+50)
                 anchors.verticalCenter:parent.verticalCenter
