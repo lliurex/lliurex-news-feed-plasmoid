@@ -16,7 +16,7 @@ Rectangle{
 
     DelegateModel{
         id:filterModel
-        model:lliurexNewsFeedWidget.rssBlogModel
+        model:lliurexNewsFeedWidget.blogRssModel
         delegate: Item {
             id:rssBlogItem
             width:rssBlogList.width-18
@@ -47,7 +47,7 @@ Rectangle{
                 anchors.verticalCenter:parent.verticalCenter
                 anchors.leftMargin:15
                 visible:{
-                    if (lliurexNewsFeedWidget.canFilterRssBlog){
+                    if (lliurexNewsFeedWidget.canFilterBlogRss){
                         if (!filterSwitchButton.checked){
                             model.isNew
                         }else{

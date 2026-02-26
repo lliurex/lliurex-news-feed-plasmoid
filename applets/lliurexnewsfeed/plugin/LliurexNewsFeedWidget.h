@@ -24,8 +24,8 @@ class LliurexNewsFeedWidget : public QObject
     Q_PROPERTY(QString subToolTip READ subToolTip NOTIFY subToolTipChanged)
     Q_PROPERTY(QString iconName READ iconName NOTIFY iconNameChanged)
     Q_PROPERTY(int currentStackIndex READ currentStackIndex NOTIFY currentStackIndexChanged)
-    Q_PROPERTY(bool canFilterRssBlog READ canFilterRssBlog NOTIFY canFilterRssBlogChanged)
-    Q_PROPERTY(LliurexNewsFeedWidgetRssModel* rssBlogModel READ rssBlogModel CONSTANT)
+    Q_PROPERTY(bool canFilterBlogRss READ canFilterBlogRss NOTIFY canFilterBlogRssChanged)
+    Q_PROPERTY(LliurexNewsFeedWidgetRssModel* blogRssModel READ blogRssModel CONSTANT)
 
     Q_ENUMS(TrayStatus)
 
@@ -57,10 +57,10 @@ public:
     int currentStackIndex();
     void setCurrentStackIndex(int);
 
-    bool canFilterRssBlog();
-    void setCanFilterRssBlog(bool);
+    bool canFilterBlogRss();
+    void setCanFilterBlogRss(bool);
 
-    LliurexNewsFeedWidgetRssModel *rssBlogModel() const;
+    LliurexNewsFeedWidgetRssModel *blogRssModel() const;
 
 public slots:
 
@@ -73,7 +73,7 @@ signals:
     void iconNameChanged();
     void statusChanged();
     void currentStackIndexChanged();
-    void canFilterRssBlogChanged();
+    void canFilterBlogRssChanged();
 
 private:
 
@@ -82,14 +82,14 @@ private:
     QString m_toolTip;
     QString m_subToolTip;
     int m_currentStackIndex=0;
-    bool m_canFilterRssBlog=false;
+    bool m_canFilterBlogRss=false;
     QString notificationTitle;
     QString notificationBody;
     LliurexNewsFeedWidgetUtils *m_utils;
     QPointer<KNotification> m_notification;
     void initPlasmoid();
     void disableApplet();
-    LliurexNewsFeedWidgetRssModel *m_rssBlogModel = nullptr;
+    LliurexNewsFeedWidgetRssModel *m_blogRssModel = nullptr;
 
 private slots:
     

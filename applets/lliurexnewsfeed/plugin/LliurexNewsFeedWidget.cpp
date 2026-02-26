@@ -12,7 +12,7 @@
 LliurexNewsFeedWidget::LliurexNewsFeedWidget(QObject *parent)
     : QObject(parent)
     , m_utils(new LliurexNewsFeedWidgetUtils(this))
-    , m_rssBlogModel(new LliurexNewsFeedWidgetRssModel(this))
+    , m_blogRssModel(new LliurexNewsFeedWidgetRssModel(this))
 
 
    
@@ -37,9 +37,9 @@ void LliurexNewsFeedWidget::initPlasmoid()
 void LliurexNewsFeedWidget::processBlogRssModel(QVector <LliurexNewsFeedWidgetRssItem> rssEntries, bool areNews){
 
     if (rssEntries.count()>0){
-        m_rssBlogModel->clear();
-        m_rssBlogModel->updateItems(rssEntries);
-        setCanFilterRssBlog(areNews);
+        m_blogRssModel->clear();
+        m_blogRssModel->updateItems(rssEntries);
+        setCanFilterBlogRss(areNews);
         
         changeTryIconState(0);
         if (areNews){
@@ -145,21 +145,21 @@ void LliurexNewsFeedWidget::setCurrentStackIndex(int currentStackIndex)
     }
 }
 
-bool LliurexNewsFeedWidget::canFilterRssBlog(){
+bool LliurexNewsFeedWidget::canFilterBlogRss(){
 
-    return m_canFilterRssBlog;
+    return m_canFilterBlogRss;
 }
 
-void LliurexNewsFeedWidget::setCanFilterRssBlog(bool canFilterRssBlog)
+void LliurexNewsFeedWidget::setCanFilterBlogRss(bool canFilterBlogRss)
 {
-    if (m_canFilterRssBlog!=canFilterRssBlog){
-        m_canFilterRssBlog=canFilterRssBlog;
-        emit canFilterRssBlogChanged();
+    if (m_canFilterBlogRss!=canFilterBlogRss){
+        m_canFilterBlogRss=canFilterBlogRss;
+        emit canFilterBlogRssChanged();
     }
 
 }
 
-LliurexNewsFeedWidgetRssModel *LliurexNewsFeedWidget::rssBlogModel() const
+LliurexNewsFeedWidgetRssModel *LliurexNewsFeedWidget::blogRssModel() const
 {
-    return m_rssBlogModel;
+    return m_blogRssModel;
 }
