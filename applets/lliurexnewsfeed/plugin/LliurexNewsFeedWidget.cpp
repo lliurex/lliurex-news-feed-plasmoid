@@ -8,10 +8,6 @@
 #include <QDebug>
 #include <QtCore/QStringList>
 #include <QLocale>
-#include <QDate>
-#include <QVector>
-#include <QtConcurrent/QtConcurrent>
-#include <QFuture>
 
 LliurexNewsFeedWidget::LliurexNewsFeedWidget(QObject *parent)
     : QObject(parent)
@@ -33,56 +29,20 @@ LliurexNewsFeedWidget::LliurexNewsFeedWidget(QObject *parent)
 
 void LliurexNewsFeedWidget::initPlasmoid()
 {
-    QFuture<void> future=QtConcurrent::run([this](){
-        this->LliurexNewsFeedWidget::plasmoidMode();
-    });
-
-    QString lang=QLocale::system().name();
-    QString blogRss="https://portal.edu.gva.es/blogs/s1/lliurex/es/feed";
-
-    if (lang.startsWith("ca")){
-        blogRss="https://portal.edu.gva.es/blogs/s1/lliurex/feed";
-    }
-
-    m_utils->fetchRss(QUrl::fromUserInput(blogRss));
-    connect(m_utils,&LliurexNewsFeedWidgetUtils::rssProcessed,this,&LliurexNewsFeedWidget::processRssModel);
-
-
+  
+    m_utils->getBlogRssInfo();
+    connect(m_utils,&LliurexNewsFeedWidgetUtils::blogRssProcessed,this,&LliurexNewsFeedWidget::processBlogRssModel);
 }  
 
-void LliurexNewsFeedWidget::plasmoidMode(){
-
-    m_lastBlogUpdate=m_utils->getLastRssUpdate(lastBlogUpdatePath);
-    if (!m_lastBlogUpdate.isEmpty()){
-        setLastBlogUpdate(m_lastBlogUpdate);
-    }else{
-        setCanFilterRssBlog(false);
-    }      
-}
-
-void LliurexNewsFeedWidget::processRssModel(QVector <LliurexNewsFeedWidgetRssItem> rssEntries, QString newUpdateRssDate){
+void LliurexNewsFeedWidget::processBlogRssModel(QVector <LliurexNewsFeedWidgetRssItem> rssEntries, bool areNews){
 
     if (rssEntries.count()>0){
         m_rssBlogModel->clear();
         m_rssBlogModel->updateItems(rssEntries);
-        bool updateLastBlogUpdatePath=false;
-        bool showNotification=false;
-        if (!newUpdateRssDate.isEmpty()){
-            if (!m_lastBlogUpdate.isEmpty()){
-                QDate newUpdate=QDate::fromString(newUpdateRssDate,Qt::RFC2822Date);
-                QDate previousDate=QDate::fromString(m_lastBlogUpdate,Qt::RFC2822Date);
-                if (newUpdate>previousDate){
-                    setCanFilterRssBlog(true);
-                    updateLastBlogUpdatePath=true;
-                    showNotification=true;
-                }  
-            }else{
-                setLastBlogUpdate(defaultFilterDate);
-                updateLastBlogUpdatePath=true;
-            }
-        }
+        setCanFilterRssBlog(areNews);
+        
         changeTryIconState(0);
-        if (showNotification){
+        if (areNews){
             notificationBody=i18n("The are new post on the LliureX blog");
             setSubToolTip(notificationBody);
             setIconName("lliurex-news-feed-updated");
@@ -94,11 +54,6 @@ void LliurexNewsFeedWidget::processRssModel(QVector <LliurexNewsFeedWidgetRssIte
             m_notification->sendEvent();
         }
 
-        if (updateLastBlogUpdatePath){
-            QFuture<void> future=QtConcurrent::run([this,newUpdateRssDate](){
-                this->LliurexNewsFeedWidget::m_utils->updateLastRssPath(lastBlogUpdatePath,newUpdateRssDate);
-            });
-        }
     }
     
 }
@@ -187,21 +142,6 @@ void LliurexNewsFeedWidget::setCurrentStackIndex(int currentStackIndex)
     if (m_currentStackIndex!=currentStackIndex){
         m_currentStackIndex=currentStackIndex;
         emit currentStackIndexChanged();
-    }
-}
-
-QString LliurexNewsFeedWidget::lastBlogUpdate()
-{
-
-    return m_lastBlogUpdate;
-}
-
-void LliurexNewsFeedWidget::setLastBlogUpdate(const QString &lastBlogUpdate)
-{
-
-    if (m_lastBlogUpdate!=lastBlogUpdate){
-        m_lastBlogUpdate=lastBlogUpdate;
-        emit lastBlogUpdateChanged();
     }
 }
 

@@ -7,9 +7,7 @@
 #include <QVector>
 
 #include "LliurexNewsFeedWidgetRssModel.h"
-
-
-using namespace std;
+#include "LliurexNewsFeedWidgetRssUtils.h"
 
 
 class LliurexNewsFeedWidgetUtils : public QObject
@@ -23,21 +21,30 @@ public:
    LliurexNewsFeedWidgetUtils(QObject *parent = nullptr);
 
    void cleanCache();
-   QString getLastRssUpdate(QString rssUpdatePath);
-   void fetchRss(const QUrl &url);
-   void updateLastRssPath(QString rssToUpdatePath, QString newDate);
-
+   void getBlogRssInfo();
+ 
 signals:
-    void rssProcessed (QVector <LliurexNewsFeedWidgetRssItem> result,QString newUpdateRssDate);
+
+   void blogRssProcessed (QVector <LliurexNewsFeedWidgetRssItem> rssEntries,bool anyNews);
+
 
 private:    
      
     QString user;
+    QString defaultFilterDate="2099-12-31";
+    QString lastBlogUpdatePath="/.config/lliurex-news-feed/lastBlogUpdate";
+    QString lastBlogRssUpdate;
+    QString newUpdateBlogRssDate;
+    LliurexNewsFeedWidgetRssUtils *m_blogRss;
     QString getInstalledVersion();
-    void createEnvirontment();
-    QVariantList parseRss(QIODevice *device);
-    QVector <LliurexNewsFeedWidgetRssItem> setDataForModel(QVariantList rssItems);
+    QString getLastRssUpdate(QString rssUpdatePath);
+    void updateLastRssPath(QString rssToUpdatePath, QString newDate);
     QString parseDate(QString dateToParse,bool isoFormat);
+    QVector <LliurexNewsFeedWidgetRssItem> setDataForModel (QVariantList rssEntries);
  
+private slots:
+
+    void processBlogRssInfo(QVariantList blogRssEntries);
+
 };
 #endif // PLASMA_LLIUREX_NEWS_FEED_WIDGET_UTILS_H

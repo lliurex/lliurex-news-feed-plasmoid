@@ -28,8 +28,7 @@ Rectangle{
                 propagateComposedEvents:false
                 onEntered:rssBlogList.currentIndex=index
             }
-            property var refDate:new Date(lliurexNewsFeedWidget.lastBlogUpdate);
-            property var rssDate:new Date(model.pubDate)
+  
             Text{
                 id:rssBlogEntry
                 text: model.title
@@ -50,11 +49,7 @@ Rectangle{
                 visible:{
                     if (lliurexNewsFeedWidget.canFilterRssBlog){
                         if (!filterSwitchButton.checked){
-                            if (rssDate.getTime()>refDate.getTime()){
-                                true
-                            }else{
-                                false
-                            }
+                            model.isNew
                         }else{
                             false
                         }
@@ -97,12 +92,10 @@ Rectangle{
 
         function updateFilter(){
 
-            let refDate=new Date(lliurexNewsFeedWidget.lastBlogUpdate);
             for (var i=0; i<items.count;i++){
                 if (filterSwitchButton.checked){
                     let item=items.get(i).model;
-                    let itemDate=new Date(item.pubDate);
-                    if (itemDate.getTime()>refDate.getTime()){
+                    if (item.isNew){
                         items.get(i).inVisible=true
                     }else{
                         items.get(i).inVisible=false
@@ -152,7 +145,7 @@ Rectangle{
                 PC3.ToolTip{
                     id:filterTT
                     text:{
-                        if (checke){
+                        if (filterSwitchButton.checked){
                             i18n("Clic to show other previous posts")
                         }else{
                             i18n("Clic to show only new posts")

@@ -5,7 +5,7 @@
 LliurexNewsFeedWidgetRssItem::LliurexNewsFeedWidgetRssItem()
     : m_title()
     , m_link()
-    , m_pubDate()
+    , m_isNew()
 
 {
 }
@@ -30,20 +30,20 @@ void LliurexNewsFeedWidgetRssItem::setLink(const QString &link)
     m_link = link;
 }
 
-QString LliurexNewsFeedWidgetRssItem::pubDate() const
+bool LliurexNewsFeedWidgetRssItem::isNew() const
 {
-    return m_pubDate;
+    return m_isNew;
 }
 
-void LliurexNewsFeedWidgetRssItem::setPubDate(const QString &pubDate)
+void LliurexNewsFeedWidgetRssItem::setIsNew(const bool &isNew)
 {
-    m_pubDate = pubDate;
+    m_isNew = isNew;
 }
 bool LliurexNewsFeedWidgetRssItem::operator==(const LliurexNewsFeedWidgetRssItem &other) const
 {
     return m_title==other.m_title
         && m_link == other.m_link
-        && m_pubDate == other.m_pubDate;
+        && m_isNew == other.m_isNew;
    
 }
 bool LliurexNewsFeedWidgetRssItem::operator!=(const LliurexNewsFeedWidgetRssItem &other) const

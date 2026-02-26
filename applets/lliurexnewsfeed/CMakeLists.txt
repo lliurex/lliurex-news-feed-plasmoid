@@ -12,6 +12,7 @@ set(lliurexnewsfeedwidget_SRCS
     plugin/plugin.cpp
     plugin/LliurexNewsFeedWidget.cpp
     plugin/LliurexNewsFeedWidgetUtils.cpp
+    plugin/LliurexNewsFeedWidgetRssUtils.cpp
     plugin/LliurexNewsFeedWidgetRssModel.cpp
     plugin/LliurexNewsFeedWidgetRssItem.cpp
    

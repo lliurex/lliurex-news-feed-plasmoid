@@ -1,40 +1,27 @@
 #include "LliurexNewsFeedWidgetUtils.h"
 #include "LliurexNewsFeedWidgetRssModel.h"
+#include "LliurexNewsFeedWidgetRssUtils.h"
 
 #include <QFile>
 #include <QDebug>
 #include <QList>
 #include <KLocalizedString>
-#include <QDebug>
 #include <QDir>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QXmlStreamReader>
 #include <QDate>
 #include <QVector>
+#include <QUrl>
 
-#include <tuple>
-#include <sys/types.h>
-#include <iostream>
 
 
 LliurexNewsFeedWidgetUtils::LliurexNewsFeedWidgetUtils(QObject *parent)
     : QObject(parent)
+    , m_blogRss(new LliurexNewsFeedWidgetRssUtils(this))
+
        
 {
     user=qgetenv("USER");
-    createEnvirontment();
 }
 
-void LliurexNewsFeedWidgetUtils::createEnvirontment(){
-
-    QString newsFeedPath="/home/"+user+"/.config/lliurex-news-feed";
-    QDir newsFeedDir;
-    if (!newsFeedDir.exists(newsFeedPath)){
-        newsFeedDir.mkdir(newsFeedPath);
-    }
-
-}
 void LliurexNewsFeedWidgetUtils::cleanCache(){
 
     qDebug()<<"[LLIUREX-NEWS-FEED]: Clean cache";
@@ -93,12 +80,51 @@ QString LliurexNewsFeedWidgetUtils::getInstalledVersion(){
     }
     return installedVersion;
 
-}  
+} 
+
+void LliurexNewsFeedWidgetUtils::getBlogRssInfo(){
+
+    QString lang=QLocale::system().name();
+    QString blogRss="https://portal.edu.gva.es/blogs/s1/lliurex/es/feed";
+
+    if (lang.startsWith("ca")){
+       blogRss="https://portal.edu.gva.es/blogs/s1/lliurex/feed";
+    }
+
+    m_blogRss->fetchRss(QUrl::fromUserInput(blogRss));
+    connect(m_blogRss,&LliurexNewsFeedWidgetRssUtils::rssProcessed,this,&LliurexNewsFeedWidgetUtils::processBlogRssInfo);
+
+}
+
+void LliurexNewsFeedWidgetUtils::processBlogRssInfo(QVariantList blogRssEntries){
+
+    QVector <LliurexNewsFeedWidgetRssItem> blogRssModel;
+    bool areNews=false;
+    
+    if (blogRssEntries.count()>0){
+        lastBlogRssUpdate=getLastRssUpdate(lastBlogUpdatePath);
+        QVariantMap lastItem=blogRssEntries.first().toMap();
+        QString newUpdateBlogRssDate=lastItem["pubDate"].toString();
+        blogRssModel=setDataForModel(blogRssEntries);
+        if (!newUpdateBlogRssDate.isEmpty()){
+            if (!lastBlogRssUpdate.isEmpty()){
+                QDate newUpdate=QDate::fromString(newUpdateBlogRssDate,Qt::RFC2822Date);
+                QDate previousDate=QDate::fromString(lastBlogRssUpdate,Qt::RFC2822Date);
+                if (newUpdate>previousDate){
+                    areNews=true;
+                }  
+            }
+            updateLastRssPath(lastBlogUpdatePath,newUpdateBlogRssDate);
+        }
+    }
+
+    emit blogRssProcessed(blogRssModel,areNews);
+
+}
 
 QString LliurexNewsFeedWidgetUtils::getLastRssUpdate(QString rssPath){
 
     QString lastRssUpdate;
-    
     QFile lastRssUpdateFile("/home/"+user+rssPath);
     if (lastRssUpdateFile.exists()){
         if (lastRssUpdateFile.open(QIODevice::ReadOnly)){
@@ -115,61 +141,6 @@ QString LliurexNewsFeedWidgetUtils::getLastRssUpdate(QString rssPath){
     return lastRssUpdate;
 }
 
-void LliurexNewsFeedWidgetUtils::fetchRss(const QUrl &url) {
-    
-    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-    QNetworkRequest request(url);
-    request.setAttribute(QNetworkRequest::FollowRedirectsAttribute,true);
-    request.setHeader(QNetworkRequest::UserAgentHeader, "Mozilla/5.0");
-
-    QNetworkReply *reply = manager->get(request);
-
-    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-        QVariantList result;
-        QVector <LliurexNewsFeedWidgetRssItem> rssModel;
-        QString newUpdateRssDate;
-        if (reply->error() == QNetworkReply::NoError) {
-            qDebug()<<"[LLIUREX-NEWS-FEED]: status"<<reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-            result = parseRss(reply);
-            if (result.count()>0){
-                qDebug()<<"[LLIUREX-NEWS-FEED]: get "<<result.count()<<" entries from rss";
-                QVariantMap lastItem=result.first().toMap();
-                QString newUpdateRssDate=lastItem["pubDate"].toString();
-                rssModel=setDataForModel(result);
-                emit rssProcessed(rssModel,newUpdateRssDate);
-
-            }else{
-                emit rssProcessed(rssModel,newUpdateRssDate);
-            }
-        }else{
-            emit rssProcessed(rssModel,newUpdateRssDate);
-        }
-        reply->deleteLater();
-    });
-}
-
-QVariantList LliurexNewsFeedWidgetUtils::parseRss(QIODevice *device) {
-    
-    QVariantList rssItems;
-    QXmlStreamReader reader(device); 
-
-    while (!reader.atEnd() && !reader.hasError()) {
-        if (reader.readNextStartElement() && reader.name() == "item") {
-                QVariantMap itemData;
-                while (reader.readNextStartElement()) {
-                    if ((reader.name()=="title") || (reader.name()=="link") || (reader.name()=="pubDate")) {
-                        itemData.insert(reader.name().toString(), reader.readElementText());
-                    }else{
-                        reader.skipCurrentElement();
-                    }
-                }
-                rssItems.append(itemData);
-        }
-    }
-    return rssItems;
-   
-}
-
 QVector <LliurexNewsFeedWidgetRssItem> LliurexNewsFeedWidgetUtils::setDataForModel(QVariantList rssItems)
 {
     QVector<LliurexNewsFeedWidgetRssItem> items;
@@ -177,10 +148,18 @@ QVector <LliurexNewsFeedWidgetRssItem> LliurexNewsFeedWidgetUtils::setDataForMod
         for (const QVariant &v: rssItems){
             QVariantMap rssEntry=v.toMap();
             LliurexNewsFeedWidgetRssItem item;
+            bool isNew=false;
+            if (!lastBlogRssUpdate.isEmpty()){
+                QDate itemDate=QDate::fromString(rssEntry["pubDate"].toString(),Qt::RFC2822Date);
+                QDate previousDate=QDate::fromString(lastBlogRssUpdate,Qt::RFC2822Date);
+                if (itemDate>previousDate){
+                    isNew=true;
+                }
+            }
             QString parsedDate=parseDate(rssEntry["pubDate"].toString(),false);
             item.setTitle(parsedDate+" - "+rssEntry["title"].toString());
             item.setLink(rssEntry["link"].toString());
-            item.setPubDate(rssEntry["pubDate"].toString());
+            item.setIsNew(isNew);
             items.append(item);
         }
     }
@@ -212,15 +191,16 @@ void LliurexNewsFeedWidgetUtils::updateLastRssPath(QString rssPath, QString newD
     QFile lastRssUpdateFile("/home/"+user+rssPath);
     QString newsFeedPath="/home/"+user+"/.config/lliurex-news-feed";
     QDir newsFeedDir;
+
     if (!newsFeedDir.exists(newsFeedPath)){
         newsFeedDir.mkdir(newsFeedPath);
-    }else{
-        if (lastRssUpdateFile.open(QIODevice::WriteOnly)){
-            QTextStream data(&lastRssUpdateFile);
-                data<<newDate;
-                lastRssUpdateFile.close();
-        }
     }
+    if (lastRssUpdateFile.open(QIODevice::WriteOnly)){
+        QTextStream data(&lastRssUpdateFile);
+        data<<newDate;
+        lastRssUpdateFile.close();
+    }
+
 }
 
 

@@ -21,8 +21,8 @@ public:
     QString link() const;
     void setLink(const QString &link);
 
-    QString pubDate() const;
-    void setPubDate(const QString &pubDate);
+    bool isNew() const;
+    void setIsNew(const bool &isNew);
 
     bool operator==(const LliurexNewsFeedWidgetRssItem &other) const;
     bool operator!=(const LliurexNewsFeedWidgetRssItem &other) const;
@@ -30,7 +30,7 @@ public:
 private:
     QString m_title;
     QString m_link;
-    QString m_pubDate;
+    bool m_isNew;
 };
 
 Q_DECLARE_METATYPE(LliurexNewsFeedWidgetRssItem)

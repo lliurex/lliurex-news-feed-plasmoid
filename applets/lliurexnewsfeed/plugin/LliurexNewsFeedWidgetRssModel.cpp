@@ -15,7 +15,7 @@ namespace {
     enum {
         TitleRole = Qt::UserRole,
         LinkRole,
-        PubDateRole
+        IsNewRole
       };
 }
 
@@ -24,7 +24,7 @@ QHash<int, QByteArray> LliurexNewsFeedWidgetRssModel::roleNames() const
     QHash<int, QByteArray> roles;
     roles[TitleRole] = "title";
     roles[LinkRole] = "link";
-    roles[PubDateRole] = "pubDate";
+    roles[IsNewRole] = "isNew";
  
     return roles;
 }
@@ -40,7 +40,7 @@ QVariant LliurexNewsFeedWidgetRssModel::data(const QModelIndex &index, int role)
     switch (role) {
         case TitleRole: return item.title();
         case LinkRole: return item.link();
-        case PubDateRole: return item.pubDate();
+        case IsNewRole: return item.isNew();
     }
 
     return QVariant();

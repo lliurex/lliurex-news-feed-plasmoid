@@ -24,7 +24,6 @@ class LliurexNewsFeedWidget : public QObject
     Q_PROPERTY(QString subToolTip READ subToolTip NOTIFY subToolTipChanged)
     Q_PROPERTY(QString iconName READ iconName NOTIFY iconNameChanged)
     Q_PROPERTY(int currentStackIndex READ currentStackIndex NOTIFY currentStackIndexChanged)
-    Q_PROPERTY(QString lastBlogUpdate READ lastBlogUpdate NOTIFY lastBlogUpdateChanged)
     Q_PROPERTY(bool canFilterRssBlog READ canFilterRssBlog NOTIFY canFilterRssBlogChanged)
     Q_PROPERTY(LliurexNewsFeedWidgetRssModel* rssBlogModel READ rssBlogModel CONSTANT)
 
@@ -58,9 +57,6 @@ public:
     int currentStackIndex();
     void setCurrentStackIndex(int);
 
-    QString lastBlogUpdate();
-    void setLastBlogUpdate(const QString &lastBlogUpdate);
-
     bool canFilterRssBlog();
     void setCanFilterRssBlog(bool);
 
@@ -77,37 +73,27 @@ signals:
     void iconNameChanged();
     void statusChanged();
     void currentStackIndexChanged();
-    void lastBlogUpdateChanged();
     void canFilterRssBlogChanged();
 
 private:
 
     TrayStatus m_status = PassiveStatus;
-    QString defaultFilterDate="2099-12-31";
     QString m_iconName = QStringLiteral("lliurex-news-feed");
     QString m_toolTip;
     QString m_subToolTip;
     int m_currentStackIndex=0;
-    QString m_lastBlogUpdate;
     bool m_canFilterRssBlog=false;
     QString notificationTitle;
     QString notificationBody;
-    QString notificationHead;
-    QString notificationFoot;
-    QString lastBlogUpdatePath="/.config/lliurex-news-feed/lastBlogUpdate";
     LliurexNewsFeedWidgetUtils *m_utils;
     QPointer<KNotification> m_notification;
     void initPlasmoid();
-    void plasmoidMode();
     void disableApplet();
-    void closeAllNotifications();
-    void sendNotification();
-    void updateLastBlogUpdate(const QString &lastUpdate);
     LliurexNewsFeedWidgetRssModel *m_rssBlogModel = nullptr;
 
 private slots:
     
-    void processRssModel(QVector <LliurexNewsFeedWidgetRssItem> rssEntries,QString newUpdateRssDate);
+    void processBlogRssModel(QVector <LliurexNewsFeedWidgetRssItem> rssEntries,bool areNews);
 };
 
 
