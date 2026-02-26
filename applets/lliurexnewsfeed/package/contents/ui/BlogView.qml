@@ -73,7 +73,6 @@ Rectangle{
                     id:linkTT
                     text:i18n("Click to see the post")
                 }
-                PC3.ToolTip.text:i18n("Click to see the article")
                 onClicked:{
                     Qt.openUrlExternally(model.link)
                 }
@@ -123,21 +122,20 @@ Rectangle{
                 font.pointSize:11
                 Layout.fillWidth:true
                 Layout.leftMargin:15
-                Layout.alignment:Qt.AlignHCenter
+                Layout.alignment:Qt.AlignHCenter|Qt.AlignVCenter
             }
             PC3.Label{
                 id:switchText
                 text:i18n("Show only news post:")
                 font.pointSize:10
                 width:headLatestBlog.width-(headBlogText.width+filterSwitchButton.width)
-                Layout.rightMargin:10
-                Layout.alignment:Qt.AlignRight
+                Layout.alignment:Qt.AlignRight|Qt.AlignVCenter
             }
 
             PC3.Switch {
                 id: filterSwitchButton
                 checked:true
-                Layout.alignment:Qt.AlignRight
+                Layout.alignment:Qt.AlignRight|Qt.AlignVCenter
                 Layout.rightMargin:30
                 PC3.ToolTip{
                     id:filterTT
@@ -148,6 +146,23 @@ Rectangle{
                             i18n("Clic to show only new posts")
                         }
                     }
+                }
+                indicator: Rectangle {
+                    implicitWidth: 40
+                    implicitHeight: 15
+                    x: filterSwitchButton.width - width - filterSwitchButton.rightPadding
+                    y: parent.height/2 - height/2 
+                    radius: 7
+                    color: filterSwitchButton.checked ? "#3daee9" : "#d3d3d3"
+
+                    Rectangle {
+                        x: filterSwitchButton.checked ? parent.width - width : 0
+                        width: 20
+                        height: 20
+                        y:parent.height/2-height/2
+                        radius: 10
+                        border.color: "#808080"
+                   }
                 }
                 onToggled:filterModel.updateFilter();
            }

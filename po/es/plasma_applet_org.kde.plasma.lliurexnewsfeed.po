@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: http://lliurex.net\n"
-"POT-Creation-Date: 2026-02-24 17:05+0100\n"
-"PO-Revision-Date: 2026-02-24 17:06+0100\n"
+"POT-Creation-Date: 2026-02-26 14:06+0100\n"
+"PO-Revision-Date: 2026-02-26 14:14+0100\n"
 "Last-Translator: lliurex <lliurex@lliurex.net>\n"
 "Language-Team: Catalan <kde-i18n-ca@kde.org>\n"
 "Language: es\n"
@@ -17,22 +17,43 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.0.1\n"
 
-#: ../applets/lliurexnewsfeed/package/contents/ui/BlogView.qml:79
+#: ../applets/lliurexnewsfeed/package/contents/ui/BlogView.qml:74
 #, kde-format
-msgid "Click to see the article"
-msgstr ""
+msgid "Click to see the post"
+msgstr "Haz clic para ver el post"
 
-#: ../applets/lliurexnewsfeed/package/contents/ui/BlogView.qml:121
+#: ../applets/lliurexnewsfeed/package/contents/ui/BlogView.qml:120
 #, kde-format
-msgid "News on the LliureX blog"
-msgstr ""
+msgid "LliureX blog"
+msgstr "Blog de LliureX"
+
+#: ../applets/lliurexnewsfeed/package/contents/ui/BlogView.qml:129
+#, kde-format
+msgid "Show only news post:"
+msgstr "Mostrar sólo los posts nuevos:"
+
+#: ../applets/lliurexnewsfeed/package/contents/ui/BlogView.qml:145
+#, kde-format
+msgid "Clic to show other previous posts"
+msgstr "Clic para mostrar otros posts anteriores"
+
+#: ../applets/lliurexnewsfeed/package/contents/ui/BlogView.qml:147
+#, kde-format
+msgid "Clic to show only new posts"
+msgstr "Clic para mostrar sólo los nuevos posts"
+
+#: ../applets/lliurexnewsfeed/package/contents/ui/BlogView.qml:185
+#: ../applets/lliurexnewsfeed/plugin/LliurexNewsFeedWidget.cpp:22
+#, kde-format
+msgid "The are no new posts on the LliureX blog"
+msgstr "No hay nuevos posts en el blog de LliureX"
 
 #: ../applets/lliurexnewsfeed/plugin/LliurexNewsFeedWidget.cpp:21
 #, kde-format
 msgid "LliureX-News-Feed"
-msgstr ""
+msgstr "LliureX-News-Feed"
 
-#: ../applets/lliurexnewsfeed/plugin/LliurexNewsFeedWidget.cpp:22
+#: ../applets/lliurexnewsfeed/plugin/LliurexNewsFeedWidget.cpp:46
 #, kde-format
-msgid "Detected news"
-msgstr ""
+msgid "The are new post on the LliureX blog"
+msgstr "Hay nuevos posts en el blog de LliureX"

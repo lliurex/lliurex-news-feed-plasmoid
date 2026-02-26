@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lliurexnewsfeed \n"
 "Report-Msgid-Bugs-To: http://lliurex.net\n"
-"POT-Creation-Date: 2026-02-24 17:05+0100\n"
+"POT-Creation-Date: 2026-02-26 14:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,14 +17,34 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../applets/lliurexnewsfeed/package/contents/ui/BlogView.qml:79
+#: ../applets/lliurexnewsfeed/package/contents/ui/BlogView.qml:74
 #, kde-format
-msgid "Click to see the article"
+msgid "Click to see the post"
 msgstr ""
 
-#: ../applets/lliurexnewsfeed/package/contents/ui/BlogView.qml:121
+#: ../applets/lliurexnewsfeed/package/contents/ui/BlogView.qml:120
 #, kde-format
-msgid "News on the LliureX blog"
+msgid "LliureX blog"
+msgstr ""
+
+#: ../applets/lliurexnewsfeed/package/contents/ui/BlogView.qml:129
+#, kde-format
+msgid "Show only news post:"
+msgstr ""
+
+#: ../applets/lliurexnewsfeed/package/contents/ui/BlogView.qml:145
+#, kde-format
+msgid "Clic to show other previous posts"
+msgstr ""
+
+#: ../applets/lliurexnewsfeed/package/contents/ui/BlogView.qml:147
+#, kde-format
+msgid "Clic to show only new posts"
+msgstr ""
+
+#: ../applets/lliurexnewsfeed/package/contents/ui/BlogView.qml:185 ../applets/lliurexnewsfeed/plugin/LliurexNewsFeedWidget.cpp:22
+#, kde-format
+msgid "The are no new posts on the LliureX blog"
 msgstr ""
 
 #: ../applets/lliurexnewsfeed/plugin/LliurexNewsFeedWidget.cpp:21
@@ -32,7 +52,7 @@ msgstr ""
 msgid "LliureX-News-Feed"
 msgstr ""
 
-#: ../applets/lliurexnewsfeed/plugin/LliurexNewsFeedWidget.cpp:22
+#: ../applets/lliurexnewsfeed/plugin/LliurexNewsFeedWidget.cpp:46
 #, kde-format
-msgid "Detected news"
+msgid "The are new post on the LliureX blog"
 msgstr ""
