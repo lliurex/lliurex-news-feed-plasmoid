@@ -4,9 +4,7 @@ import QtQml.Models 2.15
 import QtQuick.Controls 2.15
 import org.kde.plasma.core 2.1 as PlasmaCore
 import org.kde.plasma.plasmoid 2.0
-import org.kde.plasma.components 2.0 as Components
 import org.kde.plasma.components 3.0 as PC3
-import QtQuick.XmlListModel 2.15
 import org.kde.kirigami 2.12 as Kirigami
 import org.kde.plasma.private.lliurexnewsfeed 1.0
 
@@ -112,14 +110,13 @@ Rectangle{
     GridLayout{
         id:blogLayout
         rows: 2
-        focus:true
         flow: GridLayout.TopToBottom
         rowSpacing:10
         width:parent.width
         RowLayout{
             id:headLatestBlog
             Layout.fillWidth:true
-            Components.Label{
+            PC3.Label{
                 id:headBlogText
                 text:i18n("LliureX blog")
                 font.italic:true
@@ -128,7 +125,7 @@ Rectangle{
                 Layout.leftMargin:15
                 Layout.alignment:Qt.AlignHCenter
             }
-            Components.Label{
+            PC3.Label{
                 id:switchText
                 text:i18n("Show only news post:")
                 font.pointSize:10
@@ -140,7 +137,6 @@ Rectangle{
             PC3.Switch {
                 id: filterSwitchButton
                 checked:true
-                focus:true
                 Layout.alignment:Qt.AlignRight
                 Layout.rightMargin:30
                 PC3.ToolTip{
@@ -154,8 +150,7 @@ Rectangle{
                     }
                 }
                 onToggled:filterModel.updateFilter();
-
-            }
+           }
         }
 
         PC3.ScrollView {
