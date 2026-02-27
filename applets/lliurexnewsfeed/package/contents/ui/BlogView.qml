@@ -40,8 +40,8 @@ Rectangle{
             Image{
                 id:newRss
                 source:"/usr/share/icons/hicolor/scalable/apps/lliurex-rss-new-post.svg"
-                sourceSize.width:24
-                sourceSize.height:24
+                sourceSize.width:18
+                sourceSize.height:18
                 anchors.left:rssBlogEntry.right
                 anchors.verticalCenter:parent.verticalCenter
                 anchors.leftMargin:15

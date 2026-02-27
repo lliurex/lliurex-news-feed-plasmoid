@@ -157,7 +157,7 @@ QVector <LliurexNewsFeedWidgetRssItem> LliurexNewsFeedWidgetUtils::setDataForMod
                 }
             }
             QString parsedDate=parseDate(rssEntry["pubDate"].toString(),false);
-            item.setTitle(parsedDate+" - "+rssEntry["title"].toString());
+            item.setTitle(parsedDate+" - "+rssEntry["title"].toString().simplified());
             item.setLink(rssEntry["link"].toString());
             item.setIsNew(isNew);
             items.append(item);
