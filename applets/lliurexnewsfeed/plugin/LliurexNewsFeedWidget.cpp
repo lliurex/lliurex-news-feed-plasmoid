@@ -34,15 +34,19 @@ void LliurexNewsFeedWidget::initPlasmoid()
     connect(m_utils,&LliurexNewsFeedWidgetUtils::blogRssProcessed,this,&LliurexNewsFeedWidget::processBlogRssModel);
 }  
 
-void LliurexNewsFeedWidget::processBlogRssModel(QVector <LliurexNewsFeedWidgetRssItem> rssEntries, bool areNews){
+void LliurexNewsFeedWidget::processBlogRssModel(QVector <LliurexNewsFeedWidgetRssItem> rssEntries, bool areNews, bool firstRun){
 
     if (rssEntries.count()>0){
         m_blogRssModel->clear();
         m_blogRssModel->updateItems(rssEntries);
-        setCanFilterBlogRss(areNews);
+        if (!firstRun){
+            setCanFilterBlogRss(areNews);
+        }else{
+            setCanFilterBlogRss(false);
+        }
         
         changeTryIconState(0);
-        if (areNews){
+        if (areNews || firstRun){
             notificationBody=i18n("The are new post on the LliureX blog");
             setSubToolTip(notificationBody);
             setIconName("lliurex-news-feed-updated");

@@ -25,7 +25,7 @@ public:
  
 signals:
 
-   void blogRssProcessed (QVector <LliurexNewsFeedWidgetRssItem> rssEntries,bool anyNews);
+   void blogRssProcessed (QVector <LliurexNewsFeedWidgetRssItem> rssEntries,bool anyNews,bool fisrtRun);
 
 
 private:    
