@@ -17,7 +17,7 @@ void LliurexNewsFeedWidgetRssUtils::fetchRss(const QUrl &url) {
     
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
     QNetworkRequest request(url);
-    request.setAttribute(QNetworkRequest::FollowRedirectsAttribute,true);
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,QNetworkRequest::SameOriginRedirectPolicy);
     request.setHeader(QNetworkRequest::UserAgentHeader, "Mozilla/5.0");
 
     QNetworkReply *reply = manager->get(request);

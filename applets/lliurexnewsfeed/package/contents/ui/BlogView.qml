@@ -1,11 +1,12 @@
-import QtQuick 2.15
-import QtQuick.Layouts 1.15
-import QtQml.Models 2.15
-import QtQuick.Controls 2.15
-import org.kde.plasma.core 2.1 as PlasmaCore
-import org.kde.plasma.plasmoid 2.0
-import org.kde.plasma.components 3.0 as PC3
-import org.kde.kirigami 2.12 as Kirigami
+import QtQuick
+import QtQuick.Layouts
+import QtQml.Models
+import QtQuick.Controls
+import org.kde.plasma.core as PlasmaCore
+import org.kde.plasma.plasmoid 
+import org.kde.plasma.components as PC3
+import org.kde.plasma.extras as PlasmaExtras
+import org.kde.kirigami as Kirigami
 import org.kde.plasma.private.lliurexnewsfeed 1.0
 
 Rectangle{
@@ -13,12 +14,18 @@ Rectangle{
     color:"transparent"
 
     DelegateModel{
+
+        property var canFilterBlogRss:lliurexNewsFeedWidget.canFilterBlogRss
+
         id:filterModel
         model:lliurexNewsFeedWidget.blogRssModel
+        
+        onCanFilterBlogRssChanged:filterModel.updateFilter()
+
         delegate: Item {
             id:rssBlogItem
             width:rssBlogList.width-18
-            height:Math.max(rssBlogEntry.height, Math.round(PlasmaCore.Units.gridUnit * 1.6)) + 2 * PlasmaCore.Units.smallSpacing
+            height:Math.max(rssBlogEntry.height, Math.round(Kirigami.Units.gridUnit * 1.6)) + 2 * Kirigami.Units.smallSpacing
             MouseArea{
                 id:itemArea
                 anchors.fill:parent
@@ -83,11 +90,12 @@ Rectangle{
                 id:filteredItem
                 name:"visible"
                 includeByDefault:false
-             }
+            }
         ]
 
-        filterOnGroup:"visible"
 
+        filterOnGroup:"visible"
+        
         function updateFilter(){
 
             for (var i=0; i<items.count;i++){
@@ -184,13 +192,11 @@ Rectangle{
                 highlight: Rectangle { color: "#add8e6"; opacity:0.8;border.color:"#53a1c9" }
                 highlightMoveDuration: 0
                 highlightResizeDuration: 0
-                Component.onCompleted:{
-                    filterModel.updateFilter();
-                }
-                Kirigami.PlaceholderMessage{
+                Component.onCompleted:filterModel.updateFilter()
+                PlasmaExtras.PlaceholderMessage {
                     id:emptyHint
                     anchors.centerIn:parent
-                    width:parent.width-(units.largeSpacing*4)
+                    width:parent.width*2-(Kirigami.Units.gridUnit * 4)
                     visible:{
                         if (rssBlogList.count>0){
                             return false
