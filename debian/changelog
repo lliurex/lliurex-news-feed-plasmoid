@@ -1,3 +1,9 @@
+lliurex-news-feed-plasmoid (0.1.1) jammy; urgency=medium
+
+  * Improved switch performance and style
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Mon, 02 Mar 2026 10:27:29 +0100
+
 lliurex-news-feed-plasmoid (0.1) jammy; urgency=medium
 
   * Initial release
