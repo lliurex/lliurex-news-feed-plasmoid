@@ -1,10 +1,8 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 packageRoot=".."
-plasmoidName=$(kreadconfig5 --file ${DIR}/../applets/lliurexnewsfeed/package/metadata.desktop --group="Desktop Entry" --key="X-KDE-PluginInfo-Name")
-website=$(kreadconfig5 --file ${DIR}/../applets/lliurexnewsfeed/package/metadata.desktop --group="Desktop Entry" --key="X-KDE-PluginInfo-Website")
-widgetName="${plasmoidName##*.}"
-bugAddress="${website}"
+plasmoidName="org.kde.plasma.lliurexnewsfeed"
+widgetName="lliurex-news-feed-plasmoid"
 projectName="plasma_applet_${plasmoidName}"
 outFile="${projectName}.pot.new"
 
