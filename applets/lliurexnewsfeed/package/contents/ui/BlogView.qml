@@ -14,6 +14,8 @@ Rectangle{
 
     DelegateModel{
         id:filterModel
+        property var visibleItems:[]
+
         model:lliurexNewsFeedWidget.blogRssModel
         delegate: Item {
             id:rssBlogItem
@@ -24,7 +26,7 @@ Rectangle{
                 anchors.fill:parent
                 hoverEnabled:true
                 propagateComposedEvents:false
-                onEntered:rssBlogList.currentIndex=index
+                onEntered:rssBlogList.currentIndex=filterModel.visibleItems.indexOf(index)
             }
   
             PC3.Label{
@@ -80,6 +82,13 @@ Rectangle{
         }
         groups:[
             DelegateModelGroup{
+                id:allItems
+                name:"all"
+                includeByDefault:true
+                onCountChanged:Qt.callLater(filterModel.updateFilter)
+
+            },
+            DelegateModelGroup{
                 id:filteredItem
                 name:"visible"
                 includeByDefault:false
@@ -89,21 +98,31 @@ Rectangle{
         filterOnGroup:"visible"
 
         function updateFilter(){
+            visibleItems=[]
+            if (allItems.count>0){
+                allItems.setGroups(0,allItems.count,["all"]);
+                for (var index=0; index<allItems.count;index++){
+                    let item=allItems.get(index).model;
+                    let matchStatus=true
 
-            for (var i=0; i<items.count;i++){
-                if (filterSwitchButton.checked){
-                    let item=items.get(i).model;
-                    if (item.isNew){
-                        items.get(i).inVisible=true
+                    if (filterSwitchButton.checked){
+                        if (item["isNew"]){
+                            matchStatus=true
+                        }else{
+                            matchStatus=false
+                        }
                     }else{
-                        items.get(i).inVisible=false
+                       matchStatus=true
                     }
-                }else{
-                   items.get(i).inVisible=true
-                }
 
+                    if (!matchStatus) continue;
+                    allItems.setGroups(index,1,["all","visible"])
+                    visibleItems.push(index)
+                }
             }
+
         }
+        Component.onCompleted:Qt.callLater(filterModel.updateFilter)
     }
 
     GridLayout{
@@ -153,8 +172,9 @@ Rectangle{
                     x: filterSwitchButton.width - width - filterSwitchButton.rightPadding
                     y: parent.height/2 - height/2 
                     radius: 7
-                    color: filterSwitchButton.checked ? "#3daee9" : "#d3d3d3"
-
+                    color: filterSwitchButton.checked ? "#badcee" : "#dbdcde"
+                    border.width:1
+                    border.color: filterSwitchButton.checked ? "#3daee9" : "#a1a1a1"
                     Rectangle {
                         x: filterSwitchButton.checked ? parent.width - width : 0
                         width: 20
@@ -184,9 +204,6 @@ Rectangle{
                 highlight: Rectangle { color: "#add8e6"; opacity:0.8;border.color:"#53a1c9" }
                 highlightMoveDuration: 0
                 highlightResizeDuration: 0
-                Component.onCompleted:{
-                    filterModel.updateFilter();
-                }
                 Kirigami.PlaceholderMessage{
                     id:emptyHint
                     anchors.centerIn:parent
