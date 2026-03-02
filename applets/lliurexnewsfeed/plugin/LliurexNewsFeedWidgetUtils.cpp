@@ -91,8 +91,8 @@ void LliurexNewsFeedWidgetUtils::getBlogRssInfo(){
        blogRss="https://portal.edu.gva.es/blogs/s1/lliurex/feed";
     }
 
-    m_blogRss->fetchRss(QUrl::fromUserInput(blogRss));
     connect(m_blogRss,&LliurexNewsFeedWidgetRssUtils::rssProcessed,this,&LliurexNewsFeedWidgetUtils::processBlogRssInfo);
+    m_blogRss->fetchRss(QUrl::fromUserInput(blogRss));
 
 }
 

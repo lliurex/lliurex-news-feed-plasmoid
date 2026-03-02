@@ -29,9 +29,9 @@ LliurexNewsFeedWidget::LliurexNewsFeedWidget(QObject *parent)
 
 void LliurexNewsFeedWidget::initPlasmoid()
 {
-  
-    m_utils->getBlogRssInfo();
     connect(m_utils,&LliurexNewsFeedWidgetUtils::blogRssProcessed,this,&LliurexNewsFeedWidget::processBlogRssModel);
+    m_utils->getBlogRssInfo();
+
 }  
 
 void LliurexNewsFeedWidget::processBlogRssModel(QVector <LliurexNewsFeedWidgetRssItem> rssEntries, bool areNews, bool firstRun){
