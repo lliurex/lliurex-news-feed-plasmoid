@@ -20,6 +20,8 @@ LliurexNewsFeedWidgetUtils::LliurexNewsFeedWidgetUtils(QObject *parent)
        
 {
     user=qgetenv("USER");
+    connect(m_blogRss,&LliurexNewsFeedWidgetRssUtils::rssProcessed,this,&LliurexNewsFeedWidgetUtils::processBlogRssInfo);
+
 }
 
 void LliurexNewsFeedWidgetUtils::cleanCache(){
@@ -91,7 +93,6 @@ void LliurexNewsFeedWidgetUtils::getBlogRssInfo(){
        blogRss="https://portal.edu.gva.es/blogs/s1/lliurex/feed";
     }
 
-    connect(m_blogRss,&LliurexNewsFeedWidgetRssUtils::rssProcessed,this,&LliurexNewsFeedWidgetUtils::processBlogRssInfo);
     m_blogRss->fetchRss(QUrl::fromUserInput(blogRss));
 
 }
