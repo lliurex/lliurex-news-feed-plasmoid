@@ -10,6 +10,8 @@
 #include <QDate>
 #include <QVector>
 #include <QUrl>
+#include <QtConcurrent>
+#include <QMetaType>
 
 
 
@@ -20,6 +22,7 @@ LliurexNewsFeedWidgetUtils::LliurexNewsFeedWidgetUtils(QObject *parent)
        
 {
     user=qgetenv("USER");
+    qRegisterMetaType<QVector<LliurexNewsFeedWidgetRssItem>>("QVector<LliurexNewsFeedWidgetRssItem>");
     connect(m_blogRss,&LliurexNewsFeedWidgetRssUtils::rssProcessed,this,&LliurexNewsFeedWidgetUtils::processBlogRssInfo);
 
 }
@@ -99,30 +102,31 @@ void LliurexNewsFeedWidgetUtils::getBlogRssInfo(){
 
 void LliurexNewsFeedWidgetUtils::processBlogRssInfo(QVariantList blogRssEntries){
 
-    QVector <LliurexNewsFeedWidgetRssItem> blogRssModel;
-    bool areNews=false;
-    bool firstRun=true;
-    
-    if (blogRssEntries.count()>0){
-        lastBlogRssUpdate=getLastRssUpdate(lastBlogUpdatePath);
-        QVariantMap lastItem=blogRssEntries.first().toMap();
-        QString newUpdateBlogRssDate=lastItem["pubDate"].toString();
-        blogRssModel=setDataForModel(blogRssEntries);
-        if (!newUpdateBlogRssDate.isEmpty()){
-            if (!lastBlogRssUpdate.isEmpty()){
-                firstRun=false;
-                QDate newUpdate=QDate::fromString(newUpdateBlogRssDate,Qt::RFC2822Date);
-                QDate previousDate=QDate::fromString(lastBlogRssUpdate,Qt::RFC2822Date);
-                if (newUpdate>previousDate){
-                    areNews=true;
-                }  
+    QtConcurrent::run([this,blogRssEntries]() {
+        QVector <LliurexNewsFeedWidgetRssItem> blogRssModel;
+        bool areNews=false;
+        bool firstRun=true;
+        
+        if (blogRssEntries.count()>0){
+            lastBlogRssUpdate=getLastRssUpdate(lastBlogUpdatePath);
+            QVariantMap lastItem=blogRssEntries.first().toMap();
+            QString newUpdateBlogRssDate=lastItem["pubDate"].toString();
+            blogRssModel=setDataForModel(blogRssEntries);
+            if (!newUpdateBlogRssDate.isEmpty()){
+                if (!lastBlogRssUpdate.isEmpty()){
+                    firstRun=false;
+                    QDate newUpdate=QDate::fromString(newUpdateBlogRssDate,Qt::RFC2822Date);
+                    QDate previousDate=QDate::fromString(lastBlogRssUpdate,Qt::RFC2822Date);
+                    if (newUpdate>previousDate){
+                        areNews=true;
+                    }  
+                }
+                updateLastRssPath(lastBlogUpdatePath,newUpdateBlogRssDate);
             }
-            updateLastRssPath(lastBlogUpdatePath,newUpdateBlogRssDate);
         }
-    }
 
-    emit blogRssProcessed(blogRssModel,areNews,firstRun);
-
+        emit blogRssProcessed(blogRssModel,areNews,firstRun);
+    });
 }
 
 QString LliurexNewsFeedWidgetUtils::getLastRssUpdate(QString rssPath){
