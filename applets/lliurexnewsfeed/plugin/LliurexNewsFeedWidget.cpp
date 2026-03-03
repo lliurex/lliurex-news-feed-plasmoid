@@ -23,14 +23,13 @@ LliurexNewsFeedWidget::LliurexNewsFeedWidget(QObject *parent)
     setSubToolTip(notificationBody);
     setIconName("lliurex-news-feed");
     changeTryIconState(2);
+    connect(m_utils,&LliurexNewsFeedWidgetUtils::blogRssProcessed,this,&LliurexNewsFeedWidget::processBlogRssModel);
     initPlasmoid();
 
 }
 
 void LliurexNewsFeedWidget::initPlasmoid()
 {
-  
-    connect(m_utils,&LliurexNewsFeedWidgetUtils::blogRssProcessed,this,&LliurexNewsFeedWidget::processBlogRssModel);
     m_utils->getBlogRssInfo();
 }  
 
