@@ -27,6 +27,32 @@ LliurexNewsFeedWidgetUtils::LliurexNewsFeedWidgetUtils(QObject *parent)
 
 }
 
+void LliurexNewsFeedWidgetUtils::startUtils(){
+
+    QPointer<LliurexNewsFeedWidgetUtils>safeThis(this);
+
+    QtConcurrent::run([safeThis]() {
+
+        if (!safeThis){
+            return;
+        }
+
+        bool startOk=false;
+
+        try{
+            safeThis->cleanCache();
+            startOk=true;
+        }catch (std::exception& e){
+            qDebug()<<"[LLIUREX-NEWS-FEED ]: Error clearing cache: " <<e.what();
+        } 
+
+        if (safeThis){
+            emit safeThis->startUtilsFinished(startOk);
+        }
+
+    });
+}
+
 void LliurexNewsFeedWidgetUtils::cleanCache(){
 
     qDebug()<<"[LLIUREX-NEWS-FEED]: Clean cache";
@@ -51,7 +77,6 @@ void LliurexNewsFeedWidgetUtils::cleanCache(){
             currentVersion=content.readLine();
             CURRENT_VERSION_TOKEN.close();
         }
-
         if (currentVersion!=installedVersion){
             if (CURRENT_VERSION_TOKEN.open(QIODevice::WriteOnly)){
                 QTextStream data(&CURRENT_VERSION_TOKEN);

@@ -17,20 +17,22 @@ LliurexNewsFeedWidget::LliurexNewsFeedWidget(QObject *parent)
 
    
 {
-    m_utils->cleanCache();
     notificationTitle=i18n("LliureX-News-Feed");
     notificationBody=i18n("The are no new posts on the LliureX blog");
     setSubToolTip(notificationBody);
     setIconName("lliurex-news-feed");
     changeTryIconState(2);
+    connect(m_utils,&LliurexNewsFeedWidgetUtils::startUtilsFinished,this,&LliurexNewsFeedWidget::handleStartFinished);
     connect(m_utils,&LliurexNewsFeedWidgetUtils::blogRssProcessed,this,&LliurexNewsFeedWidget::processBlogRssModel);
-    initPlasmoid();
+    m_utils->startUtils();
 
 }
 
-void LliurexNewsFeedWidget::initPlasmoid()
+void LliurexNewsFeedWidget::handleStartFinished(bool startOk)
 {
-    m_utils->getBlogRssInfo();
+    if (startOk){
+        m_utils->getBlogRssInfo();
+    }
 }  
 
 void LliurexNewsFeedWidget::processBlogRssModel(QVector <LliurexNewsFeedWidgetRssItem> rssEntries, bool areNews, bool firstRun){
