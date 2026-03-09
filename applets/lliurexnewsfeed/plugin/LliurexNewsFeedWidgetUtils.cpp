@@ -12,6 +12,7 @@
 #include <QUrl>
 #include <QtConcurrent>
 #include <QMetaType>
+#include <QPointer>
 
 
 
@@ -25,6 +26,32 @@ LliurexNewsFeedWidgetUtils::LliurexNewsFeedWidgetUtils(QObject *parent)
     qRegisterMetaType<QVector<LliurexNewsFeedWidgetRssItem>>("QVector<LliurexNewsFeedWidgetRssItem>");
     connect(m_blogRss,&LliurexNewsFeedWidgetRssUtils::rssProcessed,this,&LliurexNewsFeedWidgetUtils::processBlogRssInfo);
 
+}
+
+void LliurexNewsFeedWidgetUtils::startWidget(){
+
+    QPointer<LliurexNewsFeedWidgetUtils>safeThis(this);
+
+    QtConcurrent::run([safeThis]() {
+
+        if (!safeThis){
+            return;
+        }
+
+        bool startOk=false;
+
+        try{
+            safeThis->cleanCache();
+            startOk=true;
+        }catch (std::exception& e){
+            qDebug()<<"[LLIUREX-NEWS-FEED ]: Error clearing cache: " <<e.what();
+        } 
+
+        if (safeThis){
+            emit safeThis->startWidgetFinished(startOk);
+        }
+
+    });
 }
 
 void LliurexNewsFeedWidgetUtils::cleanCache(){
@@ -51,7 +78,6 @@ void LliurexNewsFeedWidgetUtils::cleanCache(){
             currentVersion=content.readLine();
             CURRENT_VERSION_TOKEN.close();
         }
-
         if (currentVersion!=installedVersion){
             if (CURRENT_VERSION_TOKEN.open(QIODevice::WriteOnly)){
                 QTextStream data(&CURRENT_VERSION_TOKEN);
@@ -102,30 +128,35 @@ void LliurexNewsFeedWidgetUtils::getBlogRssInfo(){
 
 void LliurexNewsFeedWidgetUtils::processBlogRssInfo(QVariantList blogRssEntries){
 
-    QtConcurrent::run([this,blogRssEntries]() {
+    QPointer<LliurexNewsFeedWidgetUtils>safeThis(this);    
+    QtConcurrent::run([safeThis,blogRssEntries]() {
+        
+        if (!safeThis){
+            return;
+        }
         QVector <LliurexNewsFeedWidgetRssItem> blogRssModel;
         bool areNews=false;
         bool firstRun=true;
         
         if (blogRssEntries.count()>0){
-            lastBlogRssUpdate=getLastRssUpdate(lastBlogUpdatePath);
+            safeThis->lastBlogRssUpdate=safeThis->getLastRssUpdate(safeThis->lastBlogUpdatePath);
             QVariantMap lastItem=blogRssEntries.first().toMap();
             QString newUpdateBlogRssDate=lastItem["pubDate"].toString();
-            blogRssModel=setDataForModel(blogRssEntries);
+            blogRssModel=safeThis->setDataForModel(blogRssEntries);
             if (!newUpdateBlogRssDate.isEmpty()){
-                if (!lastBlogRssUpdate.isEmpty()){
+                if (!safeThis->lastBlogRssUpdate.isEmpty()){
                     firstRun=false;
                     QDate newUpdate=QDate::fromString(newUpdateBlogRssDate,Qt::RFC2822Date);
-                    QDate previousDate=QDate::fromString(lastBlogRssUpdate,Qt::RFC2822Date);
+                    QDate previousDate=QDate::fromString(safeThis->lastBlogRssUpdate,Qt::RFC2822Date);
                     if (newUpdate>previousDate){
                         areNews=true;
                     }  
                 }
-                updateLastRssPath(lastBlogUpdatePath,newUpdateBlogRssDate);
+                safeThis->updateLastRssPath(safeThis->lastBlogUpdatePath,newUpdateBlogRssDate);
             }
         }
 
-        emit blogRssProcessed(blogRssModel,areNews,firstRun);
+        emit safeThis->blogRssProcessed(blogRssModel,areNews,firstRun);
     });
 }
 
