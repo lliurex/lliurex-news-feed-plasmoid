@@ -27,7 +27,7 @@ LliurexNewsFeedWidgetUtils::LliurexNewsFeedWidgetUtils(QObject *parent)
 
 }
 
-void LliurexNewsFeedWidgetUtils::startUtils(){
+void LliurexNewsFeedWidgetUtils::startWidget(){
 
     QPointer<LliurexNewsFeedWidgetUtils>safeThis(this);
 
@@ -47,7 +47,7 @@ void LliurexNewsFeedWidgetUtils::startUtils(){
         } 
 
         if (safeThis){
-            emit safeThis->startUtilsFinished(startOk);
+            emit safeThis->startWidgetFinished(startOk);
         }
 
     });

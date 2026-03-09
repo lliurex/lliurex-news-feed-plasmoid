@@ -22,9 +22,9 @@ LliurexNewsFeedWidget::LliurexNewsFeedWidget(QObject *parent)
     setSubToolTip(notificationBody);
     setIconName("lliurex-news-feed");
     changeTryIconState(2);
-    connect(m_utils,&LliurexNewsFeedWidgetUtils::startUtilsFinished,this,&LliurexNewsFeedWidget::handleStartFinished);
-    connect(m_utils,&LliurexNewsFeedWidgetUtils::blogRssProcessed,this,&LliurexNewsFeedWidget::processBlogRssModel);
-    m_utils->startUtils();
+    connect(m_utils,&LliurexNewsFeedWidgetUtils::startWidgetFinished,this,&LliurexNewsFeedWidget::handleStartFinished);
+    connect(m_utils,&LliurexNewsFeedWidgetUtils::blogRssProcessed,this,&LliurexNewsFeedWidget::processBlogRssFinished);
+    m_utils->startWidget();
 
 }
 
@@ -35,7 +35,7 @@ void LliurexNewsFeedWidget::handleStartFinished(bool startOk)
     }
 }  
 
-void LliurexNewsFeedWidget::processBlogRssModel(QVector <LliurexNewsFeedWidgetRssItem> rssEntries, bool areNews, bool firstRun){
+void LliurexNewsFeedWidget::processBlogRssFinished(QVector <LliurexNewsFeedWidgetRssItem> rssEntries, bool areNews, bool firstRun){
 
     if (rssEntries.count()>0){
         m_blogRssModel->clear();

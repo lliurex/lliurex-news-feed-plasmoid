@@ -20,12 +20,12 @@ public:
 
    LliurexNewsFeedWidgetUtils(QObject *parent = nullptr);
 
-   void startUtils();
+   void startWidget();
    void getBlogRssInfo();
  
 signals:
 
-   void startUtilsFinished(bool startOk);
+   void startWidgetFinished(bool startOk);
    void blogRssProcessed (QVector <LliurexNewsFeedWidgetRssItem> rssEntries,bool anyNews,bool fisrtRun);
 
 

@@ -94,7 +94,7 @@ private:
 private slots:
     
     void handleStartFinished(bool startOk);
-    void processBlogRssModel(QVector <LliurexNewsFeedWidgetRssItem> rssEntries,bool areNews,bool firstRun);
+    void processBlogRssFinished(QVector <LliurexNewsFeedWidgetRssItem> rssEntries,bool areNews,bool firstRun);
 };
 
 
