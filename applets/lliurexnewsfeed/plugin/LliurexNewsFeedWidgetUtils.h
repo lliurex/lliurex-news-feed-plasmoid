@@ -20,11 +20,12 @@ public:
 
    LliurexNewsFeedWidgetUtils(QObject *parent = nullptr);
 
-   void cleanCache();
+   void startWidget();
    void getBlogRssInfo();
  
 signals:
 
+   void startWidgetFinished(bool startOk);
    void blogRssProcessed (QVector <LliurexNewsFeedWidgetRssItem> rssEntries,bool anyNews,bool fisrtRun);
 
 
@@ -36,6 +37,8 @@ private:
     QString lastBlogRssUpdate;
     QString newUpdateBlogRssDate;
     LliurexNewsFeedWidgetRssUtils *m_blogRss;
+    
+    void cleanCache();
     QString getInstalledVersion();
     QString getLastRssUpdate(QString rssUpdatePath);
     void updateLastRssPath(QString rssToUpdatePath, QString newDate);

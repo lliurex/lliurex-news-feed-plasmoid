@@ -17,23 +17,25 @@ LliurexNewsFeedWidget::LliurexNewsFeedWidget(QObject *parent)
 
    
 {
-    m_utils->cleanCache();
     notificationTitle=i18n("LliureX-News-Feed");
     notificationBody=i18n("The are no new posts on the LliureX blog");
     setSubToolTip(notificationBody);
     setIconName("lliurex-news-feed");
     changeTryIconState(2);
-    connect(m_utils,&LliurexNewsFeedWidgetUtils::blogRssProcessed,this,&LliurexNewsFeedWidget::processBlogRssModel);
-    initPlasmoid();
+    connect(m_utils,&LliurexNewsFeedWidgetUtils::startWidgetFinished,this,&LliurexNewsFeedWidget::handleStartFinished);
+    connect(m_utils,&LliurexNewsFeedWidgetUtils::blogRssProcessed,this,&LliurexNewsFeedWidget::processBlogRssFinished);
+    m_utils->startWidget();
 
 }
 
-void LliurexNewsFeedWidget::initPlasmoid()
+void LliurexNewsFeedWidget::handleStartFinished(bool startOk)
 {
-    m_utils->getBlogRssInfo();
+    if (startOk){
+        m_utils->getBlogRssInfo();
+    }
 }  
 
-void LliurexNewsFeedWidget::processBlogRssModel(QVector <LliurexNewsFeedWidgetRssItem> rssEntries, bool areNews, bool firstRun){
+void LliurexNewsFeedWidget::processBlogRssFinished(QVector <LliurexNewsFeedWidgetRssItem> rssEntries, bool areNews, bool firstRun){
 
     if (rssEntries.count()>0){
         m_blogRssModel->clear();
