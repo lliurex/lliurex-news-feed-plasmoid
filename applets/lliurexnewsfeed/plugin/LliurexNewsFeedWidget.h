@@ -77,7 +77,7 @@ signals:
 
 private:
 
-    TrayStatus m_status = PassiveStatus;
+    TrayStatus m_status = HiddenStatus;
     QString m_iconName = QStringLiteral("lliurex-news-feed");
     QString m_toolTip;
     QString m_subToolTip;
@@ -87,13 +87,10 @@ private:
     QString notificationBody;
     LliurexNewsFeedWidgetUtils *m_utils;
     QPointer<KNotification> m_notification;
-    void initPlasmoid();
-    void disableApplet();
     LliurexNewsFeedWidgetRssModel *m_blogRssModel = nullptr;
 
 private slots:
     
-    void handleStartFinished(bool startOk);
     void processBlogRssFinished(QVector <LliurexNewsFeedWidgetRssItem> rssEntries,bool areNews,bool firstRun);
 };
 
