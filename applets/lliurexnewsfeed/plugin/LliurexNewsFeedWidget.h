@@ -6,6 +6,8 @@
 #include <KNotification>
 #include <QVector>
 
+#include <QtQml/qqmlregistration.h>
+
 #include "LliurexNewsFeedWidgetUtils.h"
 #include "LliurexNewsFeedWidgetRssModel.h"
 
@@ -17,17 +19,7 @@ class LliurexNewsFeedWidgetRssModel;
 class LliurexNewsFeedWidget : public QObject
 {
     Q_OBJECT
-
-
-    Q_PROPERTY(TrayStatus status READ status NOTIFY statusChanged)
-    Q_PROPERTY(QString toolTip READ toolTip NOTIFY toolTipChanged)
-    Q_PROPERTY(QString subToolTip READ subToolTip NOTIFY subToolTipChanged)
-    Q_PROPERTY(QString iconName READ iconName NOTIFY iconNameChanged)
-    Q_PROPERTY(int currentStackIndex READ currentStackIndex NOTIFY currentStackIndexChanged)
-    Q_PROPERTY(bool canFilterBlogRss READ canFilterBlogRss NOTIFY canFilterBlogRssChanged)
-    Q_PROPERTY(LliurexNewsFeedWidgetRssModel* blogRssModel READ blogRssModel CONSTANT)
-
-    Q_ENUMS(TrayStatus)
+    QML_ELEMENT
 
 public:
     /**
@@ -39,7 +31,17 @@ public:
         HiddenStatus
     };
 
-    LliurexNewsFeedWidget(QObject *parent = nullptr);
+    Q_PROPERTY(TrayStatus status READ status NOTIFY statusChanged)
+    Q_PROPERTY(QString toolTip READ toolTip NOTIFY toolTipChanged)
+    Q_PROPERTY(QString subToolTip READ subToolTip NOTIFY subToolTipChanged)
+    Q_PROPERTY(QString iconName READ iconName NOTIFY iconNameChanged)
+    Q_PROPERTY(int currentStackIndex READ currentStackIndex NOTIFY currentStackIndexChanged)
+    Q_PROPERTY(bool canFilterBlogRss READ canFilterBlogRss NOTIFY canFilterBlogRssChanged)
+    Q_PROPERTY(LliurexNewsFeedWidgetRssModel* blogRssModel READ blogRssModel CONSTANT)
+
+    Q_ENUM(TrayStatus)
+
+    explicit LliurexNewsFeedWidget(QObject *parent = nullptr);
 
     TrayStatus status() const;
     void changeTryIconState (int state);
@@ -77,7 +79,7 @@ signals:
 
 private:
 
-    TrayStatus m_status = PassiveStatus;
+    TrayStatus m_status = HiddenStatus;
     QString m_iconName = QStringLiteral("lliurex-news-feed");
     QString m_toolTip;
     QString m_subToolTip;
@@ -87,13 +89,10 @@ private:
     QString notificationBody;
     LliurexNewsFeedWidgetUtils *m_utils;
     QPointer<KNotification> m_notification;
-    void initPlasmoid();
-    void disableApplet();
     LliurexNewsFeedWidgetRssModel *m_blogRssModel = nullptr;
 
 private slots:
     
-    void handleStartFinished(bool startOk);
     void processBlogRssFinished(QVector <LliurexNewsFeedWidgetRssItem> rssEntries,bool areNews,bool firstRun);
 };
 

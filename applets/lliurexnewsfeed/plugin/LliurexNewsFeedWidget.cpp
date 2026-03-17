@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <QtCore/QStringList>
 #include <QLocale>
+#include <QTimer>
 
 LliurexNewsFeedWidget::LliurexNewsFeedWidget(QObject *parent)
     : QObject(parent)
@@ -22,18 +23,14 @@ LliurexNewsFeedWidget::LliurexNewsFeedWidget(QObject *parent)
     setSubToolTip(notificationBody);
     setIconName("lliurex-news-feed");
     changeTryIconState(2);
-    connect(m_utils,&LliurexNewsFeedWidgetUtils::startWidgetFinished,this,&LliurexNewsFeedWidget::handleStartFinished);
     connect(m_utils,&LliurexNewsFeedWidgetUtils::blogRssProcessed,this,&LliurexNewsFeedWidget::processBlogRssFinished);
-    m_utils->startWidget();
+    
+    QTimer::singleShot(0,this,[this](){
+         m_utils->getBlogRssInfo();
+    });
+   
 
 }
-
-void LliurexNewsFeedWidget::handleStartFinished(bool startOk)
-{
-    if (startOk){
-        m_utils->getBlogRssInfo();
-    }
-}  
 
 void LliurexNewsFeedWidget::processBlogRssFinished(QVector <LliurexNewsFeedWidgetRssItem> rssEntries, bool areNews, bool firstRun){
 

@@ -1,17 +1,16 @@
 #ifndef LLIUREX_NEWS_FEED_PLUGIN_H
 #define LLIUREX_NEWS_FEED_PLUGIN_H
 
-#include <QQmlEngine>
-#include <QQmlExtensionPlugin>
+#include <QQmlEngineExtensionPlugin>
 
-class LliurexNewsFeedPlugin : public QQmlExtensionPlugin
+class  LliurexNewsFeedPlugin : public QQmlEngineExtensionPlugin
 {
     Q_OBJECT
-/*    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QQmlExtensionInterface")*/
-    Q_PLUGIN_METADATA(IID QQmlExtensionInterface_iid)
+    Q_PLUGIN_METADATA(IID QQmlEngineExtensionInterface_iid)
 
 public:
-    void registerTypes(const char *uri) Q_DECL_OVERRIDE;
+    using QQmlEngineExtensionPlugin::QQmlEngineExtensionPlugin;
 };
 
 #endif // LLIUREX_NEWS_FEED_PLUGIN_H
+
