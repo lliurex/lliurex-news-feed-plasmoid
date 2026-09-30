@@ -12,8 +12,8 @@
 
 LliurexNewsFeedWidget::LliurexNewsFeedWidget(QObject *parent)
     : QObject(parent)
-    , m_utils(new LliurexNewsFeedWidgetUtils(this))
-    , m_blogRssModel(new LliurexNewsFeedWidgetRssModel(this))
+    , m_utils(&LliurexNewsFeedWidgetUtils::instance())
+    , m_blogRssModel(&LliurexNewsFeedWidgetRssModel::instance())
 
 
    

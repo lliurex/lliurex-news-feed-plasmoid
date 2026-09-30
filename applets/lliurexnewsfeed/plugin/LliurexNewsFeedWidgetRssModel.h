@@ -14,7 +14,13 @@ class LliurexNewsFeedWidgetRssModel : public QAbstractListModel
     Q_OBJECT
 
 public:
-    LliurexNewsFeedWidgetRssModel(QObject *parent = nullptr);
+    static LliurexNewsFeedWidgetRssModel& instance(){
+        static LliurexNewsFeedWidgetRssModel _instance;
+        return _instance;
+    }
+
+    LliurexNewsFeedWidgetRssModel(const LliurexNewsFeedWidgetRssModel&)=delete;
+    LliurexNewsFeedWidgetRssModel& operator=(const LliurexNewsFeedWidgetRssModel&)=delete;
 
 public: // QAbstractListModel overrides
     /**
@@ -60,6 +66,8 @@ public: // additional helper functions
     void clear();
 
 private:
+
+    explicit LliurexNewsFeedWidgetRssModel();
     QVector<LliurexNewsFeedWidgetRssItem> m_items;
 };
 
