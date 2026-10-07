@@ -13,12 +13,14 @@
 #include <QtConcurrent>
 #include <QMetaType>
 #include <QPointer>
+#include <QMutexLocker>
 
 
 
-LliurexNewsFeedWidgetUtils::LliurexNewsFeedWidgetUtils(QObject *parent)
-    : QObject(parent)
-    , m_blogRss(new LliurexNewsFeedWidgetRssUtils(this))
+LliurexNewsFeedWidgetUtils::LliurexNewsFeedWidgetUtils()
+    : QObject(nullptr)
+    , isLoading(false)
+    , m_blogRss(new LliurexNewsFeedWidgetRssUtils(nullptr))
 
        
 {
@@ -28,7 +30,20 @@ LliurexNewsFeedWidgetUtils::LliurexNewsFeedWidgetUtils(QObject *parent)
 
 }
 
+LliurexNewsFeedWidgetUtils::~LliurexNewsFeedWidgetUtils(){
+
+    delete m_blogRss;
+}
+
 void LliurexNewsFeedWidgetUtils::getBlogRssInfo(){
+
+    QMutexLocker locker(&m_mutex);
+
+    if (isLoading){
+        return;
+    }
+
+    isLoading=true;
 
     QString lang=QLocale::system().name();
     QString blogRss="https://portal.edu.gva.es/blogs/s1/lliurex/es/feed";
@@ -53,23 +68,33 @@ void LliurexNewsFeedWidgetUtils::processBlogRssInfo(QVariantList blogRssEntries)
         bool areNews=false;
         bool firstRun=true;
         
-        if (blogRssEntries.count()>0){
+        if (!blogRssEntries.isEmpty()){
+            QMutexLocker locker(&safeThis->m_mutex);
+
             safeThis->lastBlogRssUpdate=safeThis->getLastRssUpdate(safeThis->lastBlogUpdatePath);
+            QString currentLastUpdateCopy=safeThis->lastBlogRssUpdate;
+
             QVariantMap lastItem=blogRssEntries.first().toMap();
+
             QString newUpdateBlogRssDate=lastItem["pubDate"].toString();
             blogRssModel=safeThis->setDataForModel(blogRssEntries);
             if (!newUpdateBlogRssDate.isEmpty()){
-                if (!safeThis->lastBlogRssUpdate.isEmpty()){
+                if (!currentLastUpdateCopy.isEmpty()){
                     firstRun=false;
                     QDate newUpdate=QDate::fromString(newUpdateBlogRssDate,Qt::RFC2822Date);
-                    QDate previousDate=QDate::fromString(safeThis->lastBlogRssUpdate,Qt::RFC2822Date);
+                    QDate previousDate=QDate::fromString(currentLastUpdateCopy,Qt::RFC2822Date);
                     if (newUpdate>previousDate){
                         areNews=true;
                     }  
                 }
                 safeThis->updateLastRssPath(safeThis->lastBlogUpdatePath,newUpdateBlogRssDate);
             }
+        }else{
+            QMutexLocker locker(&safeThis->m_mutex);
+
         }
+
+        safeThis->isLoading=false;
 
         emit safeThis->blogRssProcessed(blogRssModel,areNews,firstRun);
     });
@@ -78,7 +103,7 @@ void LliurexNewsFeedWidgetUtils::processBlogRssInfo(QVariantList blogRssEntries)
 QString LliurexNewsFeedWidgetUtils::getLastRssUpdate(QString rssPath){
 
     QString lastRssUpdate;
-    QFile lastRssUpdateFile("/home/"+user+rssPath);
+    QFile lastRssUpdateFile(QDir::homePath()+rssPath);
     if (lastRssUpdateFile.exists()){
         if (lastRssUpdateFile.open(QIODevice::ReadOnly)){
             QTextStream content(&lastRssUpdateFile);
@@ -143,12 +168,14 @@ QString LliurexNewsFeedWidgetUtils::parseDate(QString dateToParse,bool isoFormat
 void LliurexNewsFeedWidgetUtils::updateLastRssPath(QString rssPath, QString newDate)
 {
 
-    QFile lastRssUpdateFile("/home/"+user+rssPath);
-    QString newsFeedPath="/home/"+user+"/.config/lliurex-news-feed";
+    QString fullPath=QDir::homePath()+rssPath;
+    QFile lastRssUpdateFile(fullPath);
+
+    QFileInfo fileInfo(fullPath);
     QDir newsFeedDir;
 
-    if (!newsFeedDir.exists(newsFeedPath)){
-        newsFeedDir.mkdir(newsFeedPath);
+    if (!newsFeedDir.exists(fileInfo.absolutePath())){
+        newsFeedDir.mkdir(fileInfo.absolutePath());
     }
     if (lastRssUpdateFile.open(QIODevice::WriteOnly)){
         QTextStream data(&lastRssUpdateFile);
