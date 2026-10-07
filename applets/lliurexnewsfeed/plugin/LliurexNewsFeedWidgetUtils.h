@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QFile>
 #include <QDir>
+#include <QMutex>
 #include <QVector>
 
 #include "LliurexNewsFeedWidgetRssModel.h"
@@ -18,7 +19,14 @@ class LliurexNewsFeedWidgetUtils : public QObject
 public:
    
 
-   LliurexNewsFeedWidgetUtils(QObject *parent = nullptr);
+    static LliurexNewsFeedWidgetUtils& instance(){
+        static LliurexNewsFeedWidgetUtils _instance;
+        return _instance;
+    }
+
+    LliurexNewsFeedWidgetUtils(const LliurexNewsFeedWidgetUtils&)=delete;
+    LliurexNewsFeedWidgetUtils& operator=(const LliurexNewsFeedWidgetUtils&)=delete;
+
 
    void getBlogRssInfo();
  
@@ -27,7 +35,12 @@ signals:
    void blogRssProcessed (QVector <LliurexNewsFeedWidgetRssItem> rssEntries,bool anyNews,bool fisrtRun);
 
 
-private:    
+private:
+
+    explicit LliurexNewsFeedWidgetUtils();
+    ~LliurexNewsFeedWidgetUtils() override;
+
+    bool isLoading=false;    
      
     QString user;
     QString defaultFilterDate="2099-12-31";
@@ -35,6 +48,8 @@ private:
     QString lastBlogRssUpdate;
     QString newUpdateBlogRssDate;
     LliurexNewsFeedWidgetRssUtils *m_blogRss;
+
+    QMutex m_mutex;
     
     QString getLastRssUpdate(QString rssUpdatePath);
     void updateLastRssPath(QString rssToUpdatePath, QString newDate);

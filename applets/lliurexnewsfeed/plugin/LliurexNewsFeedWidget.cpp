@@ -12,14 +12,14 @@
 
 LliurexNewsFeedWidget::LliurexNewsFeedWidget(QObject *parent)
     : QObject(parent)
-    , m_utils(new LliurexNewsFeedWidgetUtils(this))
-    , m_blogRssModel(new LliurexNewsFeedWidgetRssModel(this))
+    , m_utils(&LliurexNewsFeedWidgetUtils::instance())
+    , m_blogRssModel(&LliurexNewsFeedWidgetRssModel::instance())
 
 
    
 {
     notificationTitle=i18n("LliureX-News-Feed");
-    notificationBody=i18n("The are no new posts on the LliureX blog");
+    notificationBody=i18n("There are no new posts on the LliureX blog");
     setSubToolTip(notificationBody);
     setIconName("lliurex-news-feed");
     changeTryIconState(2);
@@ -45,7 +45,7 @@ void LliurexNewsFeedWidget::processBlogRssFinished(QVector <LliurexNewsFeedWidge
         
         changeTryIconState(0);
         if (areNews || firstRun){
-            notificationBody=i18n("The are new post on the LliureX blog");
+            notificationBody=i18n("There are new post on the LliureX blog");
             setSubToolTip(notificationBody);
             setIconName("lliurex-news-feed-updated");
             m_notification=new KNotification(QStringLiteral("Blog"),KNotification::CloseOnTimeout,this);
