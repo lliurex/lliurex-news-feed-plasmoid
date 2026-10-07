@@ -3,8 +3,8 @@
 
 #include <QDebug>
 
-LliurexNewsFeedWidgetRssModel::LliurexNewsFeedWidgetRssModel(QObject *parent)
-    : QAbstractListModel(parent)
+LliurexNewsFeedWidgetRssModel::LliurexNewsFeedWidgetRssModel()
+    : QAbstractListModel(nullptr)
 {
 }
 
