@@ -1,3 +1,9 @@
+lliurex-news-feed-plasmoid (0.1.6) jammy; urgency=medium
+
+  * Fixed performance when widget is running in two or more panels
+  
+ -- Juan Ramon Pelegrina <juapesai@hotmail.com>  Wed, 07 Oct 2026 14:51:13 +0200
+
 lliurex-news-feed-plasmoid (0.1.5) jammy; urgency=medium
 
   * Changed so that the cache doesn't have to be cleared on startup
